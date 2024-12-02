@@ -54,7 +54,7 @@ async def make_image_selection(request):
     post = await request.post()
     MessageHolder.addMessage(post.get("id"), post.get("message"))
     if args.just_ui:
-        requests.get(f'http://{folder_paths.server_host}/image_chooser_message', headers={"Authorization": folder_paths.token}, timeout=1, json={post.get("id"), post.get("message")})
+        requests.get(f'http://{folder_paths.server_host}/image_chooser_message', headers={"Authorization": folder_paths.token}, timeout=1, json={"id":post.get("id"), "message":post.get("message")})
     return web.json_response({})
 
 @routes.get('/image_chooser_message')
