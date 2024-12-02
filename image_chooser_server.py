@@ -1,6 +1,9 @@
 from server import PromptServer
 from aiohttp import web
 import time
+from comfy.cli_args import args
+import requests
+import folder_paths
 
 class Cancelled(Exception):
     pass
@@ -46,6 +49,16 @@ class MessageHolder:
 routes = PromptServer.instance.routes
 @routes.post('/image_chooser_message')
 async def make_image_selection(request):
+    if folder_paths.prompt_host is not None:
+        return web.json_response({})
     post = await request.post()
+    MessageHolder.addMessage(post.get("id"), post.get("message"))
+    if args.just_ui:
+        requests.get(f'http://{folder_paths.server_host}/image_chooser_message', headers={"Authorization": folder_paths.token}, timeout=1, json={post.get("id"), post.get("message")})
+    return web.json_response({})
+
+@routes.get('/image_chooser_message')
+async def make_image_selection(request):
+    post = await request.json()
     MessageHolder.addMessage(post.get("id"), post.get("message"))
     return web.json_response({})
