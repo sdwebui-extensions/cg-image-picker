@@ -49,13 +49,16 @@ class MessageHolder:
 routes = PromptServer.instance.routes
 @routes.post('/image_chooser_message')
 async def make_image_selection(request):
-    if folder_paths.prompt_host is not None:
+    if getattr(folder_paths, "prompt_host", None) is not None:
         return web.json_response({})
     post = await request.post()
     content = {"id":post.get("id"), "message":post.get("message")}
     MessageHolder.addMessage(content.get("id"), content.get("message"))
     if args.just_ui:
-        requests.post(f'http://{folder_paths.server_host}/get_image_chooser_message', headers={"Authorization": folder_paths.token, "Ossrelativepath": args.oss_relative_path, "x-eas-uid": args.uid, "x-eas-parent-id": args.parent_uid, "sid": folder_paths.ori_prompt_id}, json=content)
+        if args.serverless:
+            requests.post(f'http://{folder_paths.server_host}/api/get_image_chooser_message', headers={"Authorization": folder_paths.token, "Ossrelativepath": args.oss_relative_path, "x-eas-uid": args.uid, "x-eas-parent-id": args.parent_uid, "sid": folder_paths.ori_prompt_id}, json=content)
+        else:
+            requests.post(f'http://{folder_paths.server_host}/get_image_chooser_message', headers={"Authorization": folder_paths.token, "Ossrelativepath": args.oss_relative_path, "x-eas-uid": args.uid, "x-eas-parent-id": args.parent_uid, "sid": folder_paths.ori_prompt_id}, json=content)
     return web.json_response({})
 
 @routes.post('/get_image_chooser_message')
