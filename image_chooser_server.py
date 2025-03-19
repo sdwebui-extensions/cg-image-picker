@@ -28,15 +28,23 @@ class MessageHolder:
     @classmethod
     def waitForMessage(cls, id, period = 0.1, asList = False):
         sid = str(id)
+        cnt = max(120 / (period + 0.01), 1)
         while not (sid in cls.messages) and not ("-1" in cls.messages):
             if cls.cancelled:
                 cls.cancelled = False
                 raise Cancelled()
             time.sleep(period)
+            cnt = cnt - 1
+            if cnt <= 0:
+                break
         if cls.cancelled:
             cls.cancelled = False
             raise Cancelled()
-        message = cls.messages.pop(str(id),None) or cls.messages.pop("-1")
+        # message = cls.messages.pop(str(id),None) or cls.messages.pop("-1")
+        try:
+            message = cls.messages.pop(str(id), None) or cls.messages.pop("-1")
+        except:
+            message = ["0"]
         try:
             if asList:
                 return [int(x.strip()) for x in message.split(",")]
