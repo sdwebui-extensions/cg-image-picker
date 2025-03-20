@@ -44,7 +44,7 @@ class MessageHolder:
         try:
             message = cls.messages.pop(str(id), None) or cls.messages.pop("-1")
         except:
-            message = ["0"]
+            message = "0"
         try:
             if asList:
                 return [int(x.strip()) for x in message.split(",")]
